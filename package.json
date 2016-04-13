@@ -1,0 +1,17 @@
+{
+  "name": "ae2ci",
+  "version": "0.0.1",
+  "description": "AfterEffects Exporter for Cinder",
+  "main": "build/ae2ci.js",
+  "author": "Greg Kepler <greg@gregkepler.com>",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-util": "=3.0.6",
+    "underscore": "^1.8.3",
+    "browserify": "^13.0.0",
+    "node-notifier": "^4.5.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
