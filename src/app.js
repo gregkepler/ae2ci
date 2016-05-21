@@ -4,6 +4,7 @@ var _ = require( "underscore" );
 // -----------------------------------------------------------------------------
 // Function for getting the name of an object
 // -----------------------------------------------------------------------------
+
 Object.prototype.getType = function() {
    var funcNameRegex = /function (.{1,})\(/;
    var results = (funcNameRegex).exec((this).constructor.toString());
@@ -13,6 +14,22 @@ Object.prototype.getType = function() {
 var project = {
     comps: []
 };
+
+var Transform = function(){
+
+    var transform = {
+        anchorPoint: [],
+        position: [],
+        scale: [],
+        orientation: [],
+        rotation: [],
+        opacity: null
+    };
+
+    return transform;
+};
+
+
 
 var Layer = function( layerItem ){
 
@@ -25,12 +42,23 @@ var Layer = function( layerItem ){
                 return;
 
             if( this.layerObject.getType() == "AVLayer" ){
-                var t = this.layerObject.Transform;
 
+                // Transform
+                var t = this.layerObject.Transform;
+                var transform = new Transform();
+
+                // POSITION
+                var positionTl = [];
                 // console.log( this.layerObject.Transform, t.position, t.position.numKeys, t.property( "Position" ) );
                 for( var i = 1; i < t.position.numKeys + 1; i++ ){
                     var keyTime = t.position.keyTime(i);
-                    console.log( "POS VALUE: ", t.position.valueAtTime( keyTime, true ) );
+                    var value = t.position.valueAtTime( keyTime, true );
+                    var obj = {
+                        time: keyTime,
+                        value: value
+                    };
+                    positionTl.push( obj );
+                    console.log( "obj: ", obj );
                 }
             }
 
@@ -40,10 +68,10 @@ var Layer = function( layerItem ){
         getKeyframeValues: function(){
 
         }
-    }
+    };
 
     return layer;
-}
+};
 
 var Comp = function( compItem ){
     var compObject = compItem;
@@ -82,29 +110,33 @@ var findValidComps = function( selection ){
         }
     }
     return comps;
-}
+};
 
-var findCompLayers = function( comp ){
-
-}
 
 var makeProjectAtlas = function( selection ){
-
     // FIND selected items
     var selection = app.project.selection;
 
     // FIND valid comps
     project.comps = findValidComps( selection );
 
-    if( project.comps.length == 0 ){
-        end( "NO VALID COMPS SELECTED" )
+    if( project.comps.length === 0 ){
+        end( "NO VALID COMPS SELECTED" );
     }
-}
+};
+
+// -----------------------------------------------------------------------------
+// Main Function
+// -----------------------------------------------------------------------------
 
 var main = function(){
     $.writeln( console.log );
     console.log( "\n---------------------- " );
     console.log( "BEGIN MAIN" );
+
+    if( !app.project ){
+        alert( "Error connecting to After Effects project" );
+    }
 
     project = makeProjectAtlas( app.project.selection );
     console.log( "SUCCESS!" );
@@ -117,5 +149,5 @@ var end = function( message ){
 }
 
 
-
+// Begin
 main();
