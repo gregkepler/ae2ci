@@ -1,6 +1,20 @@
 var console = require( "./console" );
 var _ = require( "underscore" );
 
+var timelineTemplate = 
+    "ci::Anim<vec2> mPos;" +
+    "auto mTimeline = Timeline::create();" +
+    "mTimeline->appendTo( &mPos, <%= from %>, <%= to %>, <%= duration %>, <%= easing %> );";
+
+var vec2Template = 
+    "mTimeline->appendTo( &<%= property %>, vec2( <%= from.x %>, <%= from.y %> ), vec2( <%= to.x %>, <%= to.y %> ), <%= duration %>, <%= easing %> );";
+
+var vec3Template = 
+    "mTimeline->appendTo( &<%= property %>, vec3( <%= from.x %>, <%= from.y %> ), vec3( <%= to.x %>, <%= to.y %> ), <%= duration %>, <%= easing %> );";
+
+var floatTemplate = 
+    "mTimeline->appendTo( &<%= property %>, <%= from %>, <%= to %>, <%= duration %>, <%= easing %> );";
+
 // -----------------------------------------------------------------------------
 // Function for getting the name of an object
 // -----------------------------------------------------------------------------
@@ -41,6 +55,7 @@ var Layer = function( layerItem ){
             if( !this.layerObject.enabled )
                 return;
 
+            console.log( "TYPE", this.layerObject.getType() );
             if( this.layerObject.getType() == "AVLayer" ){
 
                 // Transform
@@ -50,6 +65,7 @@ var Layer = function( layerItem ){
                 // POSITION
                 var positionTl = [];
                 // console.log( this.layerObject.Transform, t.position, t.position.numKeys, t.property( "Position" ) );
+                
                 for( var i = 1; i < t.position.numKeys + 1; i++ ){
                     var keyTime = t.position.keyTime(i);
                     var value = t.position.valueAtTime( keyTime, true );
@@ -59,6 +75,11 @@ var Layer = function( layerItem ){
                     };
                     positionTl.push( obj );
                     console.log( "obj: ", obj );
+
+                    // get template type
+                    var tlString = _.template( timelineTemplate );
+                    var str = tlString( {from: "0.0f", to: "1.0f", duration: "1.0f", easing: "Quad.easeOut" } );
+                    console.log( str );
                 }
             }
 
@@ -82,12 +103,16 @@ var Comp = function( compItem ){
         findLayers: function(){
             var _this = this;
             var layerCollection = compObject.layers;
+            if( ! layerCollection.length ){
+                console.log( "NO LAYERS IN SELECTED COMP" );
+            }
             for( var i = 1; i < layerCollection.length+1; i++ ){
                 var layer = new Layer( layerCollection[i] );
                 console.log( "LAYER", layer, layer.name );
                 layer.findProperties();
                 _this.layers.push( layer );
             }
+
         }
     };
 
@@ -114,6 +139,8 @@ var findValidComps = function( selection ){
 
 
 var makeProjectAtlas = function( selection ){
+
+    console.log( "MAKE PROJECT ATLAS" );
     // FIND selected items
     var selection = app.project.selection;
 
@@ -132,7 +159,7 @@ var makeProjectAtlas = function( selection ){
 var main = function(){
     $.writeln( console.log );
     console.log( "\n---------------------- " );
-    console.log( "BEGIN MAIN" );
+    console.log( "BEGIN MAIN", app.project.selection );
 
     if( !app.project ){
         alert( "Error connecting to After Effects project" );
